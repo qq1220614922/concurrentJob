@@ -67,7 +67,15 @@ public class RouteSection {
         ticket.tid = ticketId.getAndIncrement();
         ticket.passenger = passenger;
         ticket.route = routeId;
+
         ticket.coach = avaiSeatIndex/perSeatNum + 1;
+        /*
+        System.out.println("avaiSeatIndex: "+avaiSeatIndex+" coach:"+ticket.coach);
+        if (ticket.coach > 2)
+        {
+            System.out.println("coach:"+ticket.coach);
+        }
+        */
         ticket.seat = avaiSeatIndex % perSeatNum + 1;
         ticket.departure =departure ;
         ticket.arrival = arrival;
