@@ -35,25 +35,29 @@ public class RouteSection {
 
 
     //购票就是先读取余票后，写 seatList
-    public synchronized  Ticket sellTicket(String passenger, int departure, int arrival) {
+    public  Ticket sellTicket(String passenger, int departure, int arrival) {
 
         long oldAvailSeat = 0;
         long newAvailSeat = 0;
         long temp = getBinaryInt(departure, arrival);
 
         int avaiSeatIndex = -1;
-        for( int k = 0; k < seatList.size();k++){
-            oldAvailSeat = seatList.get(k).longValue();
-            long result = temp & oldAvailSeat;
-           // System.out.println("temp:"+temp+",oldAvailSeat:"+oldAvailSeat);
-            if (result == 0){
-                newAvailSeat = temp | oldAvailSeat;
-                seatList.set(k,
-                        new AtomicLong(newAvailSeat));
-                avaiSeatIndex = k;
-                break;
+
+        synchronized(this.seatList) {
+            for (int k = 0; k < seatList.size(); k++) {
+                oldAvailSeat = seatList.get(k).longValue();
+                long result = temp & oldAvailSeat;
+                // System.out.println("temp:"+temp+",oldAvailSeat:"+oldAvailSeat);
+                if (result == 0) {
+                    newAvailSeat = temp | oldAvailSeat;
+                    seatList.set(k,
+                            new AtomicLong(newAvailSeat));
+                    avaiSeatIndex = k;
+                    break;
+                }
             }
         }
+
         //无余票
         if (avaiSeatIndex == -1){
             return null;
@@ -65,10 +69,8 @@ public class RouteSection {
         ticket.route = routeId;
         ticket.coach = avaiSeatIndex/perSeatNum + 1;
         ticket.seat = avaiSeatIndex % perSeatNum + 1;
-
         ticket.departure =departure ;
         ticket.arrival = arrival;
-
         ticketMap.put(ticket.tid,ticket);
 
         return ticket;
@@ -91,7 +93,7 @@ public class RouteSection {
         return count;
     }
 
-    //退票就是直接写 seatList 和  queue_SoldTicket
+    //退票就是直接写 seatList 和  ticketMap
     public  boolean refundTicket(Ticket ticket) {
 
         //先判断是否合法
@@ -112,8 +114,6 @@ public class RouteSection {
                             seatNumber).longValue() & temp)
             );
         }
-
-
 
         return true;
     }
