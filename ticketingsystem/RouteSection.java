@@ -49,6 +49,7 @@ public class RouteSection {
         }
 
 
+
         int avaiSeatIndex = -1;
         for( int k = 0; k < seatList.size();k++){
             oldAvailSeat = seatList.get(k).longValue();
