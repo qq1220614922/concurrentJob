@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicLong;
@@ -15,7 +16,7 @@ public class RouteSection {
     int perSeatNum;//每节车厢的座位数目
     int totalSeatNum;//总座位数目，最后全都转化为座位号
     private ArrayList<AtomicLong> seatList;//下标是座位号，对应的值是座位在车次站台区间内的占用位图，缺点是最多纪录64位的区间
-    private Map<Long,Ticket> ticketMap;//已售出的车票，用于判断车票是否有效
+    private Map<Long,Ticket> ticketMap;//ConcurrentHashMap 已售出的车票，用于判断车票是否有效
     private AtomicLong ticketId;//车票的票号，用于给出下一个车票的id
     //用一个数组记录已经售出的票号
 
@@ -28,27 +29,17 @@ public class RouteSection {
         for(int i = 0 ; i < totalSeatNum;i++){
             seatList.add(new AtomicLong(0));
         }
-        ticketMap = new HashMap<>();
+        ticketMap = new ConcurrentHashMap<>();
         ticketId = new AtomicLong(1);
     }
 
 
     //购票就是先读取余票后，写 seatList
-    public synchronized  Ticket initSeal(String passenger, int departure, int arrival) {
+    public synchronized  Ticket sellTicket(String passenger, int departure, int arrival) {
 
         long oldAvailSeat = 0;
         long newAvailSeat = 0;
-        long temp = 0;
-
-        int i = departure - 1;
-        while(i < arrival ){
-            long pow = 1;
-            pow = pow << i;
-            temp |= pow;
-            i++;
-        }
-
-
+        long temp = getBinaryInt(departure, arrival);
 
         int avaiSeatIndex = -1;
         for( int k = 0; k < seatList.size();k++){
@@ -84,29 +75,24 @@ public class RouteSection {
     }
 
     //读取seatList
-    public synchronized  int initInquiry(int departure, int arrival) {
+    public  int inquiryTicket(int departure, int arrival) {
 
-        long temp = 0;
-        int i = departure - 1;
-        while(i < arrival - 1){
-            long pow = 1;
-            pow = pow << i;
-            temp |= pow;
-            i++;
-        }
+
+        long temp = getBinaryInt(departure, arrival);
         int count  = 0;
-        for(int k = 0 ;k < seatList.size();k++){
-            //表示该区间有空
-            if((seatList.get(k).intValue() & temp)== 0){
-                count++;
+        synchronized(this.seatList) {
+            for (int k = 0; k < seatList.size(); k++) {
+                //表示该区间有空
+                if ((seatList.get(k).intValue() & temp) == 0) {
+                    count++;
+                }
             }
         }
-
         return count;
     }
 
     //退票就是直接写 seatList 和  queue_SoldTicket
-    public synchronized  boolean initRefund(Ticket ticket) {
+    public  boolean refundTicket(Ticket ticket) {
 
         //先判断是否合法
         if (!ticketMap.containsKey(ticket.tid)){
@@ -115,26 +101,33 @@ public class RouteSection {
 
         //进行删除
         ticketMap.remove(ticket.tid);
+        long temp = getBinaryInt(ticket.departure, ticket.arrival);
+        temp = ~temp;
+        int seatNumber = (ticket.coach - 1)*perSeatNum+ticket.seat-1;
+
+        //写前加锁
+        synchronized(this.seatList){
+            seatList.set(seatNumber,
+                    new AtomicLong(seatList.get(
+                            seatNumber).longValue() & temp)
+            );
+        }
+
+
+
+        return true;
+    }
+
+    public long getBinaryInt(int departure, int arrival){
         long temp = 0;
-        int i = ticket.departure - 1;
-        while(i < ticket.arrival ){
+        int i = departure - 1;
+        while(i < arrival - 1){
             long pow = 1;
             pow = pow << i;
             temp |= pow;
             i++;
         }
-        temp = ~temp;
+        return temp;
 
-
-
-        int seatNumber = (ticket.coach - 1)*perSeatNum+ticket.seat-1;
-
-        seatList.set(seatNumber,
-                new AtomicLong(seatList.get(
-                        seatNumber).longValue() & temp)
-        );
-
-
-        return true;
     }
 }

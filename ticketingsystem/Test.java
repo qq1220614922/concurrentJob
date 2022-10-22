@@ -3,7 +3,7 @@ package ticketingsystem;
 public class Test {
 	private final static int ROUTE_NUM = 5;// 列车车次
 	private final static int COACH_NUM = 3;// 车箱数
-	private final static int SEAT_NUM = 10;// 每个车厢的座位数
+	private final static int SEAT_NUM = 2;// 每个车厢的座位数
 	private final static int STATION_NUM = 10;// 总站数
 
 	private final static int TEST_NUM = 10000;// 每个线程里调用的方法数是10000次
@@ -27,9 +27,11 @@ public class Test {
 				public void run() {
 					Ticket result = tds.buyTicket("ding",1,2,5);
 					if (result!= null){
-					//	printTicket(result);
+						System.out.println("Thread.currentThread().getId():"+Thread.currentThread().getId());
+						printTicket(result);
+
 						if ( Thread.currentThread().getId() % 3 == 0){
-						//	System.out.println("refund:"+tds.refundTicket(result));
+							System.out.println("refund:"+tds.refundTicket(result));
 						}
 					}
 

@@ -32,7 +32,7 @@ public class TicketingDS implements TicketingSystem {
                 || departure >= arrival)
             return null;
         //尝试购票，并返回(route - 1)
-        return this.routeArray.get(route - 1).initSeal(passenger, departure,
+        return this.routeArray.get(route - 1).sellTicket(passenger, departure,
                 arrival);
     }
 
@@ -47,7 +47,7 @@ public class TicketingDS implements TicketingSystem {
             return -1;
 
         //尝试查询，并返回(route - 1)
-        return this.routeArray.get(route - 1).initInquiry(departure, arrival);
+        return this.routeArray.get(route - 1).inquiryTicket(departure, arrival);
     }
 
     @Override
@@ -58,7 +58,7 @@ public class TicketingDS implements TicketingSystem {
         if (ticket == null || routeId <= 0 || routeId > this.routeNum)
             return false;
         //尝试退票，并返回(route - 1)
-        return this.routeArray.get(routeId - 1).initRefund(ticket);
+        return this.routeArray.get(routeId - 1).refundTicket(ticket);
 
     }
 
