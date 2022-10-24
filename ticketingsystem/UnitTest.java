@@ -7,7 +7,7 @@ import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class Test {
+public class UnitTest {
 	private final static int ROUTE_NUM = 5;// 列车车次
 	private final static int COACH_NUM = 8;// 车箱数
 	private final static int SEAT_NUM = 100;// 每个车厢的座位数
