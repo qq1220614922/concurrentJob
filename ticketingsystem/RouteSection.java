@@ -16,8 +16,8 @@ public class RouteSection {
     int perSeatNum;//每节车厢的座位数目
     int totalSeatNum;//总座位数目，最后全都转化为座位号
     private ArrayList<AtomicLong> seatList;//下标是座位号，对应的值是座位在车次站台区间内的占用位图，缺点是最多纪录64位的区间
-    private Map<Long,Ticket> ticketMap;//ConcurrentHashMap 已售出的车票，用于判断车票是否有效
-    private AtomicLong ticketId;//车票的票号，用于给出下一个车票的id
+    public Map<Long,Ticket> ticketMap;//ConcurrentHashMap 已售出的车票，用于判断车票是否有效
+
     //用一个数组记录已经售出的票号
 
     public RouteSection(int routeId, int coachNum, int seatNum) {
@@ -30,7 +30,7 @@ public class RouteSection {
             seatList.add(new AtomicLong(0));
         }
         ticketMap = new ConcurrentHashMap<>();
-        ticketId = new AtomicLong(1);
+
     }
 
 
@@ -43,6 +43,8 @@ public class RouteSection {
 
         int avaiSeatIndex = -1;
 
+
+        //有锁
         synchronized(this.seatList) {
             for (int k = 0; k < seatList.size(); k++) {
                 oldAvailSeat = seatList.get(k).longValue();
@@ -58,13 +60,35 @@ public class RouteSection {
             }
         }
 
+/*
+        //无锁
+        for (int k = 0; k < seatList.size(); k++) {
+
+                while(true){
+                    oldAvailSeat = seatList.get(k).longValue();
+                    long result = temp & oldAvailSeat;
+                    if (result != 0) {
+                        break;
+                    }
+                    else {
+                        newAvailSeat = temp | oldAvailSeat;
+                    }
+                    if(this.seatList.get(k).compareAndSet(oldAvailSeat, newAvailSeat)){
+                        avaiSeatIndex = k;
+                    }
+                }
+                break;
+
+        }
+*/
+
+
         //无余票
         if (avaiSeatIndex == -1){
             return null;
         }
 
         Ticket ticket = new Ticket();
-        ticket.tid = ticketId.getAndIncrement();
         ticket.passenger = passenger;
         ticket.route = routeId;
 
@@ -79,7 +103,6 @@ public class RouteSection {
         ticket.seat = avaiSeatIndex % perSeatNum + 1;
         ticket.departure =departure ;
         ticket.arrival = arrival;
-        ticketMap.put(ticket.tid,ticket);
 
         return ticket;
     }
@@ -90,14 +113,14 @@ public class RouteSection {
 
         long temp = getBinaryInt(departure, arrival);
         int count  = 0;
-        synchronized(this.seatList) {
-            for (int k = 0; k < seatList.size(); k++) {
-                //表示该区间有空
-                if ((seatList.get(k).intValue() & temp) == 0) {
-                    count++;
-                }
+       // synchronized(this.seatList) {
+        for (int k = 0; k < seatList.size(); k++) {
+            //表示该区间有空
+            if ((seatList.get(k).intValue() & temp) == 0) {
+                count++;
             }
         }
+       // }
         return count;
     }
 
@@ -106,6 +129,7 @@ public class RouteSection {
 
         //先判断是否合法
         if (!ticketMap.containsKey(ticket.tid)){
+            System.out.println("refund containsKey");
             return false;
         }
 
@@ -115,14 +139,25 @@ public class RouteSection {
         temp = ~temp;
         int seatNumber = (ticket.coach - 1)*perSeatNum+ticket.seat-1;
 
+
+        //无锁
+        long oldAvailSeat = 0;
+        long newAvailSeat = 0;
+        do {
+            oldAvailSeat = this.seatList.get(seatNumber).longValue();
+            newAvailSeat = temp & oldAvailSeat;
+        } while (!this.seatList.get(seatNumber).compareAndSet(oldAvailSeat, newAvailSeat));
+
+
+
+/*
         //写前加锁
         synchronized(this.seatList){
             seatList.set(seatNumber,
-                    new AtomicLong(seatList.get(
-                            seatNumber).longValue() & temp)
+                    new AtomicLong(seatList.get(seatNumber).longValue() & temp)
             );
         }
-
+ */
         return true;
     }
 

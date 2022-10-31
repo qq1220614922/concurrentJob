@@ -6,8 +6,6 @@ import java.io.FileDescriptor;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
-import java.util.Collection;
-
 
 
 public class Replay{
@@ -28,7 +26,7 @@ public class Replay{
   static int debugMode = 1;
 
   static ArrayList<HistoryLine> history = new ArrayList<HistoryLine>();
-  static TicketingDS object;
+  static Ticketing object;
   public static class hl_Comparator_1 implements Comparator<HistoryLine>{
 	@Override
 	public int compare(HistoryLine hl1, HistoryLine hl2){
@@ -125,7 +123,7 @@ public class Replay{
   }
 
   private static void initialization(){
-	object = new TicketingDS(routenum, coachnum, seatnum, stationnum, threadNum);
+	object = new Ticketing(routenum, coachnum, seatnum, stationnum, threadNum);
 	methodList.add("refundTicket");
 	methodList.add("buyTicket");
 	methodList.add("inquiry");

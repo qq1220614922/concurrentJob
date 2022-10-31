@@ -1,17 +1,15 @@
 package ticketingsystem;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicLong;
 
 public class UnitTest {
-	private final static int ROUTE_NUM = 5;// 列车车次
-	private final static int COACH_NUM = 8;// 车箱数
-	private final static int SEAT_NUM = 100;// 每个车厢的座位数
-	private final static int STATION_NUM = 10;// 总站数
+	private final static int ROUTE_NUM = 2;// 列车车次
+	private final static int COACH_NUM = 5;// 车箱数
+	private final static int SEAT_NUM = 3;// 每个车厢的座位数
+	private final static int STATION_NUM = 2;// 总站数
 
 	private final static int TEST_NUM = 10000;// 每个线程里调用的方法数是10000次
 	private final static int refund = (int) (0.1 * TEST_NUM);// 退票数目
@@ -23,7 +21,7 @@ public class UnitTest {
 	final static Map<Long,Long> recordQueryTime = new ConcurrentHashMap<>();;
 	public static void main(String[] args) throws InterruptedException {
 
-		final TicketingDS tds = new TicketingDS(ROUTE_NUM, COACH_NUM, SEAT_NUM, STATION_NUM, TEST_NUM);
+		final Ticketing tds = new Ticketing(ROUTE_NUM, COACH_NUM, SEAT_NUM, STATION_NUM, TEST_NUM);
 		Random r=new Random();
 
 		final long startTime = System.nanoTime();
@@ -41,9 +39,10 @@ public class UnitTest {
 					long preTime = System.nanoTime();
 					Ticket result = tds.buyTicket("ding",r.nextInt(ROUTE_NUM)+1,departure,arrival);
 					long afterTime = System.nanoTime();
+
 					recordBuyTime.put(Thread.currentThread().getId(),afterTime - preTime);
 					if (result!= null){
-					//	printTicket(result);
+						printTicket(result);
 						 preTime = System.nanoTime();
 						tds.refundTicket(result);
 						 afterTime = System.nanoTime();
@@ -65,6 +64,10 @@ public class UnitTest {
 					long preTime = System.nanoTime();
 					Ticket result = tds.buyTicket("ding",r.nextInt(ROUTE_NUM)+1,departure,arrival);
 					long afterTime = System.nanoTime();
+					if (result!= null) {
+						printTicket(result);
+					}
+
 					recordBuyTime.put(Thread.currentThread().getId(),afterTime - preTime);
 				}
 			});

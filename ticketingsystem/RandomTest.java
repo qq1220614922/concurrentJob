@@ -33,7 +33,7 @@ public class RandomTest {
         }
     }
     public static void testFixedNumberThread() throws InterruptedException {
-        final TicketingDS tds = new TicketingDS(ROUTE_NUM, COACH_NUM, SEAT_NUM, STATION_NUM, threadNum);
+        final Ticketing tds = new Ticketing(ROUTE_NUM, COACH_NUM, SEAT_NUM, STATION_NUM, threadNum);
         Random r=new Random();
         int perThreadTestNum = TEST_NUM/ threadNum;
 
@@ -54,7 +54,9 @@ public class RandomTest {
                             int select = rand.nextInt(soldTicket.size());
                             if ((ticket = soldTicket.remove(select)) != null) {
                                 long startTime = System.nanoTime();
+
                                 if (tds.refundTicket(ticket)) {
+                                  //  System.out.println("refund");
                                     totalRefundTime += System.nanoTime() - startTime;
                                     totalRefundTimes +=1;
                                     //System.out.println(startTime + " " + endTime + " " + ThreadId.get() + " "

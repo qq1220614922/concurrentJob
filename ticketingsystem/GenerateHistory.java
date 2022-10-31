@@ -6,9 +6,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileDescriptor;
-import java.io.FileOutputStream;
-import java.io.PrintStream;
 
 class ThreadId {
     // Atomic integer containing the next thread ID to be assigned
@@ -75,7 +72,7 @@ public class GenerateHistory {
 	static int inqRatio = 30; 
 
 
-	static TicketingDS tds;
+	static Ticketing tds;
 	final static List<String> methodList = new ArrayList<String>();
 	final static List<Integer> freqList = new ArrayList<Integer>();
 	final static List<Ticket> currentTicket = new ArrayList<Ticket>();
@@ -85,7 +82,7 @@ public class GenerateHistory {
 //	final static AtomicInteger tidGen = new AtomicInteger(0);
 	final static Random rand = new Random();
 	public static void initialization(){
-	  tds = new TicketingDS(routenum, coachnum, seatnum, stationnum, threadnum);
+	  tds = new Ticketing(routenum, coachnum, seatnum, stationnum, threadnum);
 	  for(int i = 0; i < threadnum; i++){
 		List<Ticket> threadTickets = new ArrayList<Ticket>();
 		soldTicket.add(threadTickets);
