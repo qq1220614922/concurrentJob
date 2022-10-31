@@ -35,7 +35,7 @@ public class Ticketing implements TicketingSystem {
         if (route <= 0 || route > this.routeNum || arrival > this.stationNum
                 || departure >= arrival)
             return null;
-        //尝试购票，并返回(route - 1)
+        //尝试购票
         Ticket ticket = this.routeArray.get(route - 1).sellTicket(passenger, departure, arrival);
         if(ticket != null){
             ticket.tid = ticketId.getAndIncrement();
@@ -54,7 +54,7 @@ public class Ticketing implements TicketingSystem {
 
             return -1;
 
-        //尝试查询，并返回(route - 1)
+        //尝试查询
         return this.routeArray.get(route - 1).inquiryTicket(departure, arrival);
     }
 
@@ -66,7 +66,7 @@ public class Ticketing implements TicketingSystem {
         if (ticket == null || routeId <= 0 || routeId > this.routeNum){
             return false;
         }
-        //尝试退票，并返回(route - 1)
+        //尝试退票
         return this.routeArray.get(routeId - 1).refundTicket(ticket);
 
     }

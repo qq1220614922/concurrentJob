@@ -18,8 +18,6 @@ public class RouteSection {
     private ArrayList<AtomicLong> seatList;//下标是座位号，对应的值是座位在车次站台区间内的占用位图，缺点是最多纪录64位的区间
     public Map<Long,Ticket> ticketMap;//ConcurrentHashMap 已售出的车票，用于判断车票是否有效
 
-    //用一个数组记录已经售出的票号
-
     public RouteSection(int routeId, int coachNum, int seatNum) {
         this.routeId = routeId;
         this.coachNum = coachNum;
@@ -147,7 +145,6 @@ public class RouteSection {
             oldAvailSeat = this.seatList.get(seatNumber).longValue();
             newAvailSeat = temp & oldAvailSeat;
         } while (!this.seatList.get(seatNumber).compareAndSet(oldAvailSeat, newAvailSeat));
-
 
 
 /*
