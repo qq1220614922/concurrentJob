@@ -16,9 +16,12 @@ public class UnitTest {
 	private final static int buy = (int) (0.3 * TEST_NUM);// 买票数目
 	private final static int query = (int) (0.6 * TEST_NUM);// 查询票数目
 	private final static int thread = 64;// 线程数目
-	final static Map<Long,Long> recordRefundTime =  new ConcurrentHashMap<>();;
-	final static Map<Long,Long> recordBuyTime = new ConcurrentHashMap<>();;
-	final static Map<Long,Long> recordQueryTime = new ConcurrentHashMap<>();;
+	final static Map<Long,Long> recordRefundTime =  new ConcurrentHashMap<>();
+	final static Map<Long,Long> recordBuyTime = new ConcurrentHashMap<>();
+	final static Map<Long,Long> recordQueryTime = new ConcurrentHashMap<>();
+
+
+
 	public static void main(String[] args) throws InterruptedException {
 
 		final Ticketing tds = new Ticketing(ROUTE_NUM, COACH_NUM, SEAT_NUM, STATION_NUM, TEST_NUM);

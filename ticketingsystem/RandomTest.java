@@ -1,5 +1,7 @@
 package ticketingsystem;
 
+import org.junit.Test;
+
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Random;
@@ -25,7 +27,9 @@ public class RandomTest {
         long uid = rand.nextInt(TEST_NUM);
         return "passenger" + uid;
     }
-    public static void main(String[] args) throws InterruptedException {
+
+    @Test
+    public void RandomTest() throws InterruptedException {
         int[ ] threadNums = {4,8,16,32,64};
         for(int  i = 0 ;i < threadNums.length;i++){
             threadNum = threadNums[i];

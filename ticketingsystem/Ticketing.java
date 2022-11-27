@@ -9,7 +9,7 @@ public class Ticketing implements TicketingSystem {
     private int threadnum; // 线程数
     private AtomicLong ticketId;//车票的票号，用于给出下一个车票的id
     private ArrayList<RouteSection> routeArray;//车次列表
-    Ticketing(int routenum, int coachnum, int seatnum, int  stationnum, int  threadnum){
+    public Ticketing(int routenum, int coachnum, int seatnum, int stationnum, int threadnum){
         this.routeNum = routenum;
         this.stationNum = stationnum;
         routeArray = new ArrayList<>();
